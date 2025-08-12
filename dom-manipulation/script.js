@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     const quoteDisplay = document.getElementById('quoteDisplay');
     const newQuoteBtn = document.getElementById('newQuote');
@@ -6,15 +5,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const newQuoteText = document.getElementById('newQuoteText');
     const newQuoteCategory = document.getElementById('newQuoteCategory');
 
-    // Array of quote objects
+    // ✅ 1. Quotes array: Each quote is an object with text and category
     const quotes = [
         { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
-        { text: "Success is not final, failure is not fatal: It is the courage to continue that counts.", category: "Motivation" },
+        { text: "Success is not final, failure is not fatal.", category: "Motivation" },
         { text: "You miss 100% of the shots you don't take.", category: "Sports" },
         { text: "Life is what happens when you're busy making other plans.", category: "Life" }
     ];
 
-    // Function to display a random quote
+    // ✅ 2. Display a random quote
     function showRandomQuote() {
         const randomIndex = Math.floor(Math.random() * quotes.length);
         const quote = quotes[randomIndex];
@@ -24,23 +23,24 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
-    // Function to add a new quote
+    // ✅ 3. Function to add a quote and update DOM
     function addQuote() {
         const text = newQuoteText.value.trim();
         const category = newQuoteCategory.value.trim();
 
         if (text === '' || category === '') {
-            alert('Please enter both quote and category.');
+            alert('Please enter both a quote and a category.');
             return;
         }
 
-        // Add new quote to the array
-        quotes.push({ text, category });
+        // Add to quotes array
+        const newQuote = { text, category };
+        quotes.push(newQuote);
 
-        // Optionally show the newly added quote
+        // Update the DOM with the new quote
         quoteDisplay.innerHTML = `
-            <p><strong>New Quote Added:</strong> ${text}</p>
-            <p><strong>Category:</strong> ${category}</p>
+            <p><strong>New Quote Added:</strong> ${newQuote.text}</p>
+            <p><strong>Category:</strong> ${newQuote.category}</p>
         `;
 
         // Clear input fields
@@ -48,10 +48,11 @@ document.addEventListener('DOMContentLoaded', function () {
         newQuoteCategory.value = '';
     }
 
-    // Attach event listeners
-    newQuoteBtn.addEventListener('click', showRandomQuote);
-    addQuoteBtn.addEventListener('click', addQuote);
+    // ✅ 4. Event listeners
+    newQuoteBtn.addEventListener('click', showRandomQuote); // Show random quote
+    addQuoteBtn.addEventListener('click', addQuote);        // Add new quote
 
-    // Show a random quote on page load
+    // ✅ 5. Show one quote on load
     showRandomQuote();
 });
+
