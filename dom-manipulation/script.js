@@ -1,4 +1,12 @@
+document.addEventListener('DOMContentLoaded', function () {
+  // File existence check
+  if (typeof window === 'undefined' || !document) {
+    console.error('Browser environment or DOM not detected.');
+    return;
+  };
+});
 
+// Element references
 document.addEventListener('DOMContentLoaded', function () {
   const quoteDisplay = document.getElementById('quoteDisplay');
   const newQuoteBtn = document.getElementById('newQuote');
@@ -9,11 +17,78 @@ document.addEventListener('DOMContentLoaded', function () {
   const importFile = document.getElementById('importFile');
   const exportQuotesBtn = document.getElementById('exportQuotes');
 
-  // ✅ Load quotes from localStorage or initialize default
+
+// Mock API URL
+  const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+
+  // Load or initialize quotes
   let quotes = JSON.parse(localStorage.getItem('quotes')) || [
-    { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
-    { text: "You miss 100% of the shots you don't take.", category: "Motivation" }
+    { text: "Start where you are.", category: "Motivation" },
+    { text: "Be yourself; everyone else is already taken.", category: "Humor" }
   ];
+
+  function saveQuotes() {
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+  }
+
+  // Fetch quotes from server (mock)
+  async function fetchQuotesFromServer() {
+    try {
+      const res = await fetch(SERVER_URL);
+      return await res.json();
+    } catch (err) {
+      console.error('Error fetching from server:', err);
+      return null;
+    }
+  }
+
+  // Post local data to server (mock)
+  async function postQuotesToServer() {
+    try {
+      await fetch(SERVER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quotes),
+      });
+    } catch (err) {
+      console.error('Error posting to server:', err);
+    }
+  }
+
+  // Sync logic
+  async function syncQuotes() {
+    const serverData = await fetchQuotesFromServer();
+    if (!serverData) {
+      alert('Failed to sync with server.');
+      return;
+    }
+
+    // Conflict resolution — server takes precedence
+    const serializedLocal = JSON.stringify(quotes);
+    const serializedServer = JSON.stringify(serverData);
+
+    if (serializedServer !== serializedLocal) {
+      quotes = Array.isArray(serverData) ? serverData : quotes;
+      saveQuotes();
+      alert('Local data updated from server.');
+      populateCategories();
+      filterQuotes();
+    }
+  }
+
+  // Periodic syncing every 60 seconds
+  setInterval(syncQuotes, 60000);
+
+  // Manual sync via button
+  syncNowBtn.addEventListener('click', syncQuotes);
+
+
+
+//   // ✅ Load quotes from localStorage or initialize default
+//   let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+//     { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
+//     { text: "You miss 100% of the shots you don't take.", category: "Motivation" }
+//   ];
 
   // ✅ Save quotes to localStorage
   function saveQuotes() {
@@ -158,45 +233,45 @@ document.addEventListener('DOMContentLoaded', function () {
   filterQuotes();
 
 
-//   adding URL API
-const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock endpoint
+// //   adding URL API
+// const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock endpoint
 
-// Simulate fetching quotes from server
-async function fetchFromServer() {
-  const res = await fetch(API_URL);
-  return await res.json(); // simulate server quote list
-}
+// // Simulate fetching quotes from server
+// async function fetchFromServer() {
+//   const res = await fetch(API_URL);
+//   return await res.json(); // simulate server quote list
+// }
 
-// Simulate syncing local data to server
-async function pushToServer(quotes) {
-  await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(quotes),
-  });
-}
+// // Simulate syncing local data to server
+// async function pushToServer(quotes) {
+//   await fetch(API_URL, {
+//     method: 'POST',
+//     headers: { 'Content-Type': 'application/json' },
+//     body: JSON.stringify(quotes),
+//   });
+// }
 
-// Core sync logic
-async function syncQuotes() {
-  try {
-    const remoteQuotes = await fetchFromServer();
-    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+// // Core sync logic
+// async function syncQuotes() {
+//   try {
+//     const remoteQuotes = await fetchFromServer();
+//     const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
-    // Simple conflict resolution: remote takes precedence
-    if (JSON.stringify(remoteQuotes) !== JSON.stringify(localQuotes)) {
-      localStorage.setItem('quotes', JSON.stringify(remoteQuotes));
-      populateCategories();
-      filterQuotes();
-      alert('Quotes have been updated from the server.');
-    }
+//     // Simple conflict resolution: remote takes precedence
+//     if (JSON.stringify(remoteQuotes) !== JSON.stringify(localQuotes)) {
+//       localStorage.setItem('quotes', JSON.stringify(remoteQuotes));
+//       populateCategories();
+//       filterQuotes();
+//       alert('Quotes have been updated from the server.');
+//     }
 
-    // Optionally push local edits to the server
-    // await pushToServer(localQuotes);
+//     // Optionally push local edits to the server
+//     // await pushToServer(localQuotes);
 
-  } catch (err) {
-    console.error('Sync failed:', err);
-  }
-}
+//   } catch (err) {
+//     console.error('Sync failed:', err);
+//   }
+// }
 
 
 
