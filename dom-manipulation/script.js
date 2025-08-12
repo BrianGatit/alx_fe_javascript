@@ -232,22 +232,27 @@ document.addEventListener('DOMContentLoaded', function () {
   populateCategories();
   filterQuotes();
 
-function showNotification(message, type = 'success') {
-  const notification = document.getElementById('notification');
-  notification.textContent = message;
-  notification.style.backgroundColor = type === 'error' ? '#f44336' : '#4caf50';
-  notification.style.display = 'block';
-  
-  setTimeout(() => {
-    notification.style.display = 'none';
-  }, 3000);
+//   async function
+async function syncWithServer() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const serverQuotes = await response.json();
+    if (serverQuotes && Array.isArray(serverQuotes)) {
+      // Simulate server sync - take 1 quote from the server
+      quotes = quotes.concat(serverQuotes.slice(0, 1).map(post => ({
+        text: post.title,
+        category: 'Server'
+      })));
+      saveQuotes();
+      showNotification('Quotes synced with server!', 'info'); // ✅ Updated message
+    }
+  } catch (error) {
+    showNotification('Failed to sync with server.', 'error');
+  }
 }
 
-showNotification('Quotes updated from server.');
-// or
-showNotification('Failed to sync with server.', 'error');
 
-
+syncWithServer();
 
 
 });
