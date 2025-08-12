@@ -157,5 +157,48 @@ document.addEventListener('DOMContentLoaded', function () {
   populateCategories();
   filterQuotes();
 
+
+//   adding URL API
+const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock endpoint
+
+// Simulate fetching quotes from server
+async function fetchFromServer() {
+  const res = await fetch(API_URL);
+  return await res.json(); // simulate server quote list
+}
+
+// Simulate syncing local data to server
+async function pushToServer(quotes) {
+  await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(quotes),
+  });
+}
+
+// Core sync logic
+async function syncQuotes() {
+  try {
+    const remoteQuotes = await fetchFromServer();
+    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+    // Simple conflict resolution: remote takes precedence
+    if (JSON.stringify(remoteQuotes) !== JSON.stringify(localQuotes)) {
+      localStorage.setItem('quotes', JSON.stringify(remoteQuotes));
+      populateCategories();
+      filterQuotes();
+      alert('Quotes have been updated from the server.');
+    }
+
+    // Optionally push local edits to the server
+    // await pushToServer(localQuotes);
+
+  } catch (err) {
+    console.error('Sync failed:', err);
+  }
+}
+
+
+
 });
 
