@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const addQuoteBtn = document.getElementById('addQuoteBtn');
   const newQuoteText = document.getElementById('newQuoteText');
   const newQuoteCategory = document.getElementById('newQuoteCategory');
+  const categoryFilter = document.getElementById('categoryFilter');
   const importFile = document.getElementById('importFile');
   const exportQuotesBtn = document.getElementById('exportQuotes');
 
@@ -18,6 +19,39 @@ document.addEventListener('DOMContentLoaded', function () {
   function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
   }
+   
+  // Populate dropdown with unique categories
+  function populateCategories() {
+    const savedFilter = localStorage.getItem('selectedCategory') || 'all';
+    const categories = [...new Set(quotes.map(q => q.category))];
+
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      if (cat === savedFilter) option.selected = true;
+      categoryFilter.appendChild(option);
+    });
+  }
+
+
+  // Filter and display quote by category
+  function filterQuotes() {
+    const selected = categoryFilter.value;
+    localStorage.setItem('selectedCategory', selected);
+
+    const filtered = selected === 'all'
+      ? quotes
+      : quotes.filter(q => q.category === selected);
+
+    if (filtered.length === 0) {
+      quoteDisplay.innerHTML = '<p>No quotes in this category.</p>';
+      return;
+    };
+  }
+
+
 
   // ✅ Show a random quote and save it to sessionStorage
   function showRandomQuote() {
@@ -60,6 +94,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const newQuote = { text, category };
     quotes.push(newQuote);
     saveQuotes(); // Save updated list
+    populateCategories();
+    filterQuotes();
+
+
 
     quoteDisplay.innerHTML = `
       <p><strong>New Quote Added:</strong> ${newQuote.text}</p>
@@ -92,6 +130,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (Array.isArray(importedQuotes)) {
           quotes.push(...importedQuotes);
           saveQuotes();
+          populateCategories();
+          filterQuotes();
           alert('Quotes imported successfully!');
           showRandomQuote();
         } else {
@@ -109,8 +149,13 @@ document.addEventListener('DOMContentLoaded', function () {
   addQuoteBtn.addEventListener('click', addQuote);
   exportQuotesBtn.addEventListener('click', exportToJsonFile);
 
+
   // ✅ Load last viewed quote or show a random one
   loadLastViewedQuote();
-});
 
+  // Initial load
+  populateCategories();
+  filterQuotes();
+
+});
 
